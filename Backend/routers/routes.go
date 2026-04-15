@@ -11,10 +11,17 @@ func RegisterRoutes(app *gin.Engine) {
 			"message": "Backend running successfully",
 		})
 	})
-
+	// Contacts routes
 	app.POST("/contacts", controllers.CreateContact)
 	app.GET("/contacts", controllers.GetContacts)
 	app.GET("/contacts/:id", controllers.GetContactByID)
 	app.PUT("/contacts/:id", controllers.UpdateContact)
 	app.DELETE("/contacts/:id", controllers.DeleteContact)
+
+	//Campaign routes
+	app.POST("/campaigns", controllers.CreateCampaign)
+	app.GET("/campaigns", controllers.GetCampaigns)
+	app.GET("/campaigns/:id", controllers.GetCampaignByID)
+	app.PUT("/campaigns/:id", controllers.UpdateCampaign)
+	app.DELETE("/campaigns/:id", controllers.DeleteCampaign)
 }

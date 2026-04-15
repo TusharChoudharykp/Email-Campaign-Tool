@@ -143,3 +143,10 @@ func DeleteCampaign(id string) (bool, error) {
 
 	return true, nil
 }
+
+func UpdateCampaignStatus(id string, status string) error {
+	query := "UPDATE campaigns SET status = ? WHERE id = ?"
+
+	_, err := config.DB.Exec(query, status, id)
+	return err
+}

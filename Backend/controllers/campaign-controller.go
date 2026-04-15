@@ -124,3 +124,20 @@ func DeleteCampaign(c *gin.Context) {
 		"message": "Campaign deleted successfully",
 	})
 }
+
+func SendCampaign(c *gin.Context) {
+	id := c.Param("id")
+
+	err := services.SendCampaign(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to send campaign",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Campaign emails sent successfully",
+	})
+}

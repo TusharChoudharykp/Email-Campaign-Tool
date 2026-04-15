@@ -20,8 +20,13 @@ func RegisterRoutes(app *gin.Engine) {
 
 	//Campaign routes
 	app.POST("/campaigns", controllers.CreateCampaign)
+	app.POST("/campaigns/:id/send", controllers.SendCampaign)
 	app.GET("/campaigns", controllers.GetCampaigns)
 	app.GET("/campaigns/:id", controllers.GetCampaignByID)
 	app.PUT("/campaigns/:id", controllers.UpdateCampaign)
 	app.DELETE("/campaigns/:id", controllers.DeleteCampaign)
+
+	//email-log routes
+	app.GET("/email-logs", controllers.GetAllEmailLogs)
+	app.GET("/campaigns/:id/logs", controllers.GetEmailLogsByCampaignID)
 }

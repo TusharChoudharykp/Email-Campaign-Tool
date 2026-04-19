@@ -30,4 +30,7 @@ func RegisterRoutes(app *gin.Engine) {
 	app.GET("/email-logs", controllers.GetAllEmailLogs)
 	app.GET("/campaigns/:id/logs", controllers.GetEmailLogsByCampaignID)
 	app.GET("/email-logs/advanced", controllers.GetAdvancedEmailLogs)
+
+	//schedule routes
+	app.POST("/schedules", controllers.CreateSchedule)
 }

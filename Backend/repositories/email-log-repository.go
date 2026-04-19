@@ -100,3 +100,64 @@ func GetEmailLogsByCampaignID(id string) ([]models.EmailLog, error) {
 
 	return logs, nil
 }
+
+func GetAdvancedEmailLogs() ([]map[string]interface{}, error) {
+	query := `
+	SELECT 
+		e.id,
+		ca.name AS campaign_name,
+		co.name AS contact_name,
+		co.email,
+		e.status,
+		e.error_message,
+		e.sent_at
+	FROM email_logs e
+	JOIN campaigns ca ON e.campaign_id = ca.id
+	JOIN contacts co ON e.contact_id = co.id
+	ORDER BY e.id DESC
+	`
+
+	rows, err := config.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []map[string]interface{}
+
+	for rows.Next() {
+		var id int
+		var campaignName string
+		var contactName string
+		var email string
+		var status string
+		var errorMessage string
+		var sentAt string
+
+		err := rows.Scan(
+			&id,
+			&campaignName,
+			&contactName,
+			&email,
+			&status,
+			&errorMessage,
+			&sentAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		logs = append(logs, map[string]interface{}{
+			"id":            id,
+			"campaign_name": campaignName,
+			"name":          contactName,
+			"email":         email,
+			"status":        status,
+			"error_message": errorMessage,
+			"sent_at":       sentAt,
+		})
+	}
+
+	return logs, nil
+}

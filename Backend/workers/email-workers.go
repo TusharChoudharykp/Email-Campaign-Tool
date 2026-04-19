@@ -3,7 +3,6 @@ package workers
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"net/smtp"
 	"sync"
 	"text/template"
@@ -16,6 +15,7 @@ func EmailWorker(
 	id int,
 	wg *sync.WaitGroup,
 	jobs <-chan models.Contact,
+	results chan<- models.RecipientResult,
 	campaign models.Campaign,
 ) {
 	defer wg.Done()
@@ -24,14 +24,19 @@ func EmailWorker(
 		err := sendMail(contact, campaign)
 
 		if err != nil {
-			log.Println("Failed:", contact.Email, err)
-
 			repositories.CreateEmailLog(
 				campaign.ID,
 				contact.ID,
 				"failed",
 				err.Error(),
 			)
+
+			results <- models.RecipientResult{
+				Name:   contact.Name,
+				Email:  contact.Email,
+				Status: "failed",
+				Error:  err.Error(),
+			}
 
 			continue
 		}
@@ -43,15 +48,17 @@ func EmailWorker(
 			"",
 		)
 
+		results <- models.RecipientResult{
+			Name:   contact.Name,
+			Email:  contact.Email,
+			Status: "sent",
+		}
+
 		fmt.Printf("Worker %d sent to %s\n", id, contact.Email)
 	}
 }
 
-func sendMail(
-	contact models.Contact,
-	campaign models.Campaign,
-) error {
-
+func sendMail(contact models.Contact, campaign models.Campaign) error {
 	tpl, err := template.New("email").Parse(campaign.Template)
 	if err != nil {
 		return err
@@ -71,11 +78,8 @@ func sendMail(
 		body.String(),
 	)
 
-	smtpHost := "localhost"
-	smtpPort := "1025"
-
 	return smtp.SendMail(
-		smtpHost+":"+smtpPort,
+		"localhost:1025",
 		nil,
 		"admin@example.com",
 		[]string{contact.Email},

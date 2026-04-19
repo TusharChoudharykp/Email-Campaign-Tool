@@ -42,22 +42,30 @@ func RemoveCampaign(id string) (bool, error) {
 	return repositories.DeleteCampaign(id)
 }
 
-func SendCampaign(id string) error {
+func SendCampaign(id string, segment string) (*models.SendSummary, error) {
 	campaign, err := repositories.GetCampaignByID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	contacts, err := repositories.GetContactsForCampaign()
+	var contacts []models.Contact
+
+	if segment == "" {
+		contacts, err = repositories.GetContactsForCampaign()
+	} else {
+		contacts, err = repositories.GetContactsBySegment(segment)
+	}
+
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	repositories.UpdateCampaignStatus(id, "sending")
 
 	jobs := make(chan models.Contact)
-	var wg sync.WaitGroup
+	results := make(chan models.RecipientResult, len(contacts))
 
+	var wg sync.WaitGroup
 	workerCount := 5
 
 	for i := 1; i <= workerCount; i++ {
@@ -67,6 +75,7 @@ func SendCampaign(id string) error {
 			i,
 			&wg,
 			jobs,
+			results,
 			*campaign,
 		)
 	}
@@ -76,10 +85,27 @@ func SendCampaign(id string) error {
 	}
 
 	close(jobs)
-
 	wg.Wait()
+	close(results)
 
 	repositories.UpdateCampaignStatus(id, "sent")
 
-	return nil
+	summary := &models.SendSummary{
+		CampaignID:    campaign.ID,
+		CampaignName:  campaign.Name,
+		Status:        "sent",
+		TotalContacts: len(contacts),
+	}
+
+	for result := range results {
+		summary.Recipients = append(summary.Recipients, result)
+
+		if result.Status == "sent" {
+			summary.SentCount++
+		} else {
+			summary.FailedCount++
+		}
+	}
+
+	return summary, nil
 }

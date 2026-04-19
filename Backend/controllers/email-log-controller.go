@@ -40,3 +40,19 @@ func GetEmailLogsByCampaignID(c *gin.Context) {
 		"data":    data,
 	})
 }
+
+func GetAdvancedEmailLogs(c *gin.Context) {
+	data, err := services.FetchAdvancedEmailLogs()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "Failed to fetch email logs",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Advanced email logs fetched successfully",
+		"data":    data,
+	})
+}

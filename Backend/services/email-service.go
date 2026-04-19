@@ -12,3 +12,7 @@ func FetchAllEmailLogs() ([]models.EmailLog, error) {
 func FetchEmailLogsByCampaignID(id string) ([]models.EmailLog, error) {
 	return repositories.GetEmailLogsByCampaignID(id)
 }
+
+func FetchAdvancedEmailLogs() ([]map[string]interface{}, error) {
+	return repositories.GetAdvancedEmailLogs()
+}

@@ -157,3 +157,39 @@ func GetContactsForCampaign() ([]models.Contact, error) {
 
 	return contacts, nil
 }
+
+func GetContactsBySegment(segment string) ([]models.Contact, error) {
+	query := `
+	SELECT id, name, email, segment, created_at
+	FROM contacts
+	WHERE segment = ?
+	`
+
+	rows, err := config.DB.Query(query, segment)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var contacts []models.Contact
+
+	for rows.Next() {
+		var contact models.Contact
+
+		err := rows.Scan(
+			&contact.ID,
+			&contact.Name,
+			&contact.Email,
+			&contact.Segment,
+			&contact.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		contacts = append(contacts, contact)
+	}
+
+	return contacts, nil
+}

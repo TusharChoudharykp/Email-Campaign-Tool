@@ -2,35 +2,48 @@ package routes
 
 import (
 	"github.com/TusharChoudharykp/Email-Campaign-Tool/controllers"
+	"github.com/TusharChoudharykp/Email-Campaign-Tool/middlewares"
+
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterRoutes(app *gin.Engine) {
+
+	// Health Route
 	app.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Backend running successfully",
 		})
 	})
-	// Contacts routes
-	app.POST("/contacts", controllers.CreateContact)
-	app.GET("/contacts", controllers.GetContacts)
-	app.GET("/contacts/:id", controllers.GetContactByID)
-	app.PUT("/contacts/:id", controllers.UpdateContact)
-	app.DELETE("/contacts/:id", controllers.DeleteContact)
 
-	//Campaign routes
-	app.POST("/campaigns", controllers.CreateCampaign)
-	app.POST("/campaigns/:id/send", controllers.SendCampaign)
-	app.GET("/campaigns", controllers.GetCampaigns)
-	app.GET("/campaigns/:id", controllers.GetCampaignByID)
-	app.PUT("/campaigns/:id", controllers.UpdateCampaign)
-	app.DELETE("/campaigns/:id", controllers.DeleteCampaign)
+	// Public Routes
+	app.POST("/auth/register", controllers.Register)
+	app.POST("/auth/login", controllers.Login)
 
-	//email-log routes
-	app.GET("/email-logs", controllers.GetAllEmailLogs)
-	app.GET("/campaigns/:id/logs", controllers.GetEmailLogsByCampaignID)
-	app.GET("/email-logs/advanced", controllers.GetAdvancedEmailLogs)
+	// Protected Routes
+	protected := app.Group("/")
+	protected.Use(middlewares.AuthMiddleware())
 
-	//schedule routes
-	app.POST("/schedules", controllers.CreateSchedule)
+	// Contacts Routes
+	protected.POST("/contacts", controllers.CreateContact)
+	protected.GET("/contacts", controllers.GetContacts)
+	protected.GET("/contacts/:id", controllers.GetContactByID)
+	protected.PUT("/contacts/:id", controllers.UpdateContact)
+	protected.DELETE("/contacts/:id", controllers.DeleteContact)
+
+	// Campaign Routes
+	protected.POST("/campaigns", controllers.CreateCampaign)
+	protected.POST("/campaigns/:id/send", controllers.SendCampaign)
+	protected.GET("/campaigns", controllers.GetCampaigns)
+	protected.GET("/campaigns/:id", controllers.GetCampaignByID)
+	protected.PUT("/campaigns/:id", controllers.UpdateCampaign)
+	protected.DELETE("/campaigns/:id", controllers.DeleteCampaign)
+
+	// Email Logs Routes
+	protected.GET("/email-logs", controllers.GetAllEmailLogs)
+	protected.GET("/campaigns/:id/logs", controllers.GetEmailLogsByCampaignID)
+	protected.GET("/email-logs/advanced", controllers.GetAdvancedEmailLogs)
+
+	// Schedule Routes
+	protected.POST("/schedules", controllers.CreateSchedule)
 }

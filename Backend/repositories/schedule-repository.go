@@ -103,3 +103,44 @@ func GetScheduleByID(id string) (*models.ScheduledCampaign, error) {
 
 	return &item, nil
 }
+
+func GetAllSchedules() ([]models.ScheduledCampaign, error) {
+
+	query := `
+	SELECT id, campaign_id, segment, send_at, status, created_at
+	FROM scheduled_campaigns
+	ORDER BY id DESC
+	`
+
+	rows, err := config.DB.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var schedules []models.ScheduledCampaign
+
+	for rows.Next() {
+
+		var item models.ScheduledCampaign
+
+		err := rows.Scan(
+			&item.ID,
+			&item.CampaignID,
+			&item.Segment,
+			&item.SendAt,
+			&item.Status,
+			&item.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		schedules = append(schedules, item)
+	}
+
+	return schedules, nil
+}

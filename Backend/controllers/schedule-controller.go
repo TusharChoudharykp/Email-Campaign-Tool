@@ -32,3 +32,23 @@ func CreateSchedule(c *gin.Context) {
 		"data":    result,
 	})
 }
+
+func GetSchedules(c *gin.Context) {
+
+	data, err := services.FetchSchedules()
+
+	if err != nil {
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Failed to fetch schedules",
+			"error":   err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Schedules fetched successfully",
+		"data":    data,
+	})
+}

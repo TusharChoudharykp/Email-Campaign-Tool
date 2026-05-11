@@ -56,3 +56,7 @@ func ProcessScheduledCampaigns() {
 		repositories.UpdateScheduleStatus(item.ID, "completed")
 	}
 }
+
+func FetchSchedules() ([]models.ScheduledCampaign, error) {
+	return repositories.GetAllSchedules()
+}

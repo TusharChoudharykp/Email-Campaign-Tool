@@ -28,6 +28,8 @@ func RegisterRoutes(app *gin.Engine) {
 	protected.POST("/contacts", controllers.CreateContact)
 	protected.GET("/contacts", controllers.GetContacts)
 	protected.GET("/contacts/:id", controllers.GetContactByID)
+	protected.GET("/dashboard/stats", controllers.GetDashboardStats)
+	protected.GET("/schedules", controllers.GetSchedules)
 	protected.PUT("/contacts/:id", controllers.UpdateContact)
 	protected.DELETE("/contacts/:id", controllers.DeleteContact)
 
